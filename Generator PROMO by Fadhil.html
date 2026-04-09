@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voucher Promo Eksklusif</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #F0D080;
+    --gold-dark: #8B6914;
+    --dark: #0D0D0D;
+    --dark2: #161616;
+    --dark3: #1E1E1E;
+    --dark4: #2A2A2A;
+    --cream: #FAF5E9;
+    --cream2: #F0E8D0;
+    --text: #E8E0CC;
+    --text-muted: #8A8070;
+    --red: #C0392B;
+    --green: #27AE60;
+    --radius: 16px;
+    --shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===================== SCREENS ===================== */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* ===================== SCREEN 1: GENERATOR ===================== */
+  #screen-generator {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: var(--dark);
+    position: relative;
+  }
+
+  #screen-generator::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .gen-card {
+    background: var(--dark2);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 24px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+    box-shadow: var(--shadow);
+  }
+
+  .gen-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .gen-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--dark);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+  }
+
+  .gen-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+
+  .gen-header h1 span { color: var(--gold); }
+
+  .gen-header p {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--dark3);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--cream);
+    outline: none;
+    transition: border 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    background: var(--dark4);
+  }
+
+  input::placeholder { color: var(--text-muted); }
+
+  select option { background: var(--dark3); }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .promo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .promo-option {
+    background: var(--dark3);
+    border: 2px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .promo-option:hover { border-color: rgba(201,168,76,0.4); }
+  .promo-option.selected { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+
+  .promo-option .p-icon { font-size: 22px; margin-bottom: 4px; }
+  .promo-option .p-label { font-size: 11px; font-weight: 600; color: var(--cream2); }
+  .promo-option .p-val { font-size: 13px; font-weight: 700; color: var(--gold); }
+
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--gold), #A07828);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dark);
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-generate::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.4s;
+  }
+
+  .btn-generate:hover::after { left: 100%; }
+  .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+  .btn-generate:active { transform: translateY(0); }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent);
+    margin: 28px 0;
+  }
+
+  /* ===================== SCREEN 2: VOUCHER ===================== */
+  #screen-voucher {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    background: linear-gradient(160deg, #0D0D0D 0%, #161010 40%, #0D0D0D 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Animated Background Elements */
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-orb-1 {
+    width: 500px; height: 500px;
+    top: -150px; right: -150px;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+
+  .bg-orb-2 {
+    width: 400px; height: 400px;
+    bottom: -100px; left: -100px;
+    background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
+    animation: orbFloat 10s ease-in-out infinite reverse;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(20px, -20px); }
+  }
+
+  .voucher-container {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px 16px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Top Nav */
+  .voucher-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .btn-back {
+    background: var(--dark3);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--gold);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  .btn-back:hover { border-color: var(--gold); }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  /* Hero Banner */
+  .hero-banner {
+    position: relative;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+    height: 200px;
+    background: linear-gradient(135deg, #1a1208, #2d1f05);
+  }
+
+  .hero-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      rgba(201,168,76,0.15) 0%,
+      rgba(160,120,40,0.1) 50%,
+      rgba(0,0,0,0.4) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+  }
+
+  .hero-banner-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #1a1208, #2d1f05, #1a1208);
+    position: relative;
+  }
+
+  /* Geometric pattern in hero */
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image:
+      repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+    background-size: 20px 20px;
+  }
+
+  .hero-content {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .hero-company-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--gold-light);
+    text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .hero-tagline {
+    font-size: 11px;
+    color: rgba(240,208,128,0.7);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .exclusive-ribbon {
+    position: absolute;
+    top: 14px;
+    right: -8px;
+    background: linear-gradient(135deg, #C0392B, #922B21);
+    color: white;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 18px 5px 12px;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    z-index: 3;
+  }
+
+  /* Main Card */
+  .voucher-card {
+    background: var(--dark2);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  /* Promo Value Banner */
+  .promo-value-banner {
+    background: linear-gradient(135deg, #C9A84C, #8B6914);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .promo-value-banner::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .promo-value-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; right: 60px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .promo-left .promo-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(13,13,13,0.7);
+    margin-bottom: 2px;
+  }
+
+  .promo-left .promo-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+  }
+
+  .promo-left .promo-desc {
+    font-size: 11px;
+    color: rgba(13,13,13,0.6);
+    margin-top: 3px;
+  }
+
+  .promo-icon-big {
+    font-size: 42px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Info Sections */
+  .card-body {
+    padding: 24px;
+  }
+
+  .info-section {
+    margin-bottom: 20px;
+  }
+
+  .info-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .info-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(201,168,76,0.3), transparent);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 16px;
+    align-items: start;
+  }
+
+  .info-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .info-content .info-lbl {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .info-content .info-val {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.3;
+  }
+
+  /* Serrated edge divider */
+  .serrated {
+    height: 20px;
+    background: var(--dark2);
+    position: relative;
+    margin: 4px 0;
+  }
+
+  .serrated::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 20px;
+    background: radial-gradient(ellipse at center, var(--dark) 40%, transparent 41%) repeat-x;
+    background-size: 20px 20px;
+    background-position: 0 -10px;
+  }
+
+  /* QR Section */
+  .qr-section {
+    text-align: center;
+    padding: 24px;
+    background: var(--dark3);
+    border-top: 1px dashed rgba(201,168,76,0.2);
+    position: relative;
+  }
+
+  .qr-section::before, .qr-section::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    width: 24px; height: 24px;
+    background: var(--dark);
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .qr-section::before { left: -12px; }
+  .qr-section::after { right: -12px; }
+
+  .qr-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .qr-wrapper {
+    display: inline-block;
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    margin-bottom: 16px;
+  }
+
+  /* Unique Code */
+  .unique-code-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .unique-code-box:hover {
+    background: rgba(201,168,76,0.12);
+    border-color: var(--gold);
+  }
+
+  .code-text {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--gold-light);
+  }
+
+  .copy-icon { font-size: 14px; color: var(--text-muted); }
+
+  /* Countdown Timer */
+  .countdown-section {
+    padding: 20px 24px;
+    text-align: center;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .countdown-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .countdown-blocks {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .countdown-block {
+    text-align: center;
+  }
+
+  .countdown-num {
+    background: var(--dark4);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gold-light);
+    min-width: 64px;
+    display: block;
+    line-height: 1;
+    transition: all 0.3s;
+  }
+
+  .countdown-unit {
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 5px;
+  }
+
+  .countdown-sep {
+    font-size: 24px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+
+  .expired-badge {
+    background: rgba(192,57,43,0.15);
+    border: 1px solid rgba(192,57,43,0.4);
+    color: #E74C3C;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    padding: 20px 24px 24px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--gold), #8B6914);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dark);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.25); }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  .btn-secondary:hover { background: rgba(201,168,76,0.08); border-color: var(--gold); }
+
+  /* Terms */
+  .terms-box {
+    background: rgba(201,168,76,0.04);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .terms-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .terms-list {
+    list-style: none;
+  }
+
+  .terms-list li {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 4px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.4;
+  }
+
+  .terms-list li::before {
+    content: '›';
+    color: var(--gold);
+    font-size: 14px;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--dark4);
+    border: 1px solid var(--gold);
+    color: var(--cream);
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Success Screen */
+  #screen-success {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .success-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes successPop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-in {
+    animation: fadeInUp 0.5s ease forwards;
+  }
+
+  .animate-in-1 { animation-delay: 0.1s; opacity: 0; }
+  .animate-in-2 { animation-delay: 0.2s; opacity: 0; }
+  .animate-in-3 { animation-delay: 0.3s; opacity: 0; }
+  .animate-in-4 { animation-delay: 0.4s; opacity: 0; }
+
+  /* Pulse on QR */
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(201,168,76,0); }
+  }
+
+  .qr-wrapper { animation: pulse-gold 2s infinite; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
+  /* Share button */
+  .share-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .btn-wa {
+    flex: 1;
+    padding: 14px;
+    background: #25D366;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  .btn-wa:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* Valid status badge */
+  .validity-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .status-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+  }
+
+  /* Floating label input */
+  .form-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 5px;
+  }
+
+  .char-count {
+    text-align: right;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  @media (max-width: 380px) {
+    .promo-value-banner { flex-direction: column; text-align: center; gap: 10px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== SCREEN 1: GENERATOR ==================== -->
+<div id="screen-generator" class="screen active">
+  <div class="gen-card">
+    <div class="gen-header">
+      <div class="gen-badge">🏠 Host Live / Sales Tool</div>
+      <h1> <span>Voucher</span> Promo bulan april</h1>
+      <p>Isi data konsumen untuk membuat voucher eksklusif</p>
+    </div>
+
+    <!-- Promo Type -->
+    <div class="form-group">
+      <label>🎁 Pilih Tipe Promo</label>
+      <div class="promo-grid" id="promoGrid">
+        <div class="promo-option selected" data-promo="Elektronik" data-icon="⚡" onclick="selectPromo(this)">
+          <div class="p-icon">⚡</div>
+          <div class="p-label">Water Heater, AC, SmartTV, Mesin Cuci</div>
+          <div class="p-val">Elektronik</div>
+        </div>
+        <div class="promo-option" data-promo="kitchen Set" data-icon="🍽️" onclick="selectPromo(this)">
+          <div class="p-icon">🍽️</div>
+          <div class="p-label">Lemari Atas, Lemari Bawah Belum termasuk kompor dan Cooker Hood</div>
+          <div class="p-val">kitchen Set</div>
+        </div>
+        <div class="promo-option" data-promo="Kitchen Set Full" data-icon="🧑‍🍳" onclick="selectPromo(this)">
+          <div class="p-icon">🧑‍🍳</div>
+          <div class="p-label">Full sudah termasuk kompor dan Cooker Hood</div>
+          <div class="p-val">Kitchen Set Full</div>
+        </div>
+        <div class="promo-option" data-promo="Free BPHTB" data-icon="📋" onclick="selectPromo(this)">
+          <div class="p-icon">📋</div>
+          <div class="p-label">Bebas Biaya</div>
+          <div class="p-val">Free BPHTB</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>👤 Nama Konsumen</label>
+        <input type="text" id="inputNama" placeholder="Budi Santoso" />
+      </div>
+      <div class="form-group">
+        <label>📞 No. WhatsApp</label>
+        <input type="tel" id="inputWA" placeholder="08xxxxxxxxxx" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>🏘️ Unit / Produk yang Diminati</label>
+      <input type="text" id="inputUnit" placeholder="Tipe 36/72 – Cluster Mawar" />
+    </div>
+
+    <div class="form-group">
+      <label>📍 Lokasi Proyek</label>
+      <input type="text" id="inputLokasi" placeholder="Jl. Raya Cikaret, Bogor Selatan" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>🎤 Nama Sales / Host</label>
+        <input type="text" id="inputSales" placeholder="Siti Rahayu" />
+      </div>
+      <div class="form-group">
+        <label>🏢 Nama Proyek</label>
+        <input type="text" id="inputProyek" placeholder="Grand Permata Residence" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>🔗 URL Halaman Voucher (opsional)</label>
+      <input type="url" id="inputURL" placeholder="https://yoursite.com/voucher" />
+      <p class="form-hint">Kosongkan jika pakai halaman bawaan ini</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn-generate" onclick="generateVoucher()">
+      ✨ Generate Voucher Sekarang
+    </button>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 2: VOUCHER ==================== -->
+<div id="screen-voucher" class="screen">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+
+  <div class="voucher-container">
+
+    <!-- Nav -->
+    <div class="voucher-nav animate-in animate-in-1">
+      <div class="nav-logo">🏠 VOUCHER</div>
+      <button class="btn-back" onclick="downloadVoucher()" style="color: var(--cream)">💾 Simpan</button>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner animate-in animate-in-1" id="heroBanner">
+      <div class="hero-banner-placeholder">
+        <div class="hero-pattern"></div>
+        <div class="hero-content">
+          <div class="hero-company-logo" id="heroProyek">GRAND PERMATA</div>
+          <div class="hero-tagline">Hunian Impian • Harga Terjangkau</div>
+        </div>
+      </div>
+      <div class="exclusive-ribbon">EKSKLUSIF</div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="voucher-card animate-in animate-in-2">
+
+      <!-- Promo Value Banner -->
+      <div class="promo-value-banner" id="promoValueBanner">
+        <div class="promo-left">
+          <div class="promo-label">Promo Spesial Untukmu</div>
+          <div class="promo-amount" id="promoAmount">DP 0%</div>
+          <div class="promo-desc" id="promoDesc">Bebas uang muka, langsung huni!</div>
+        </div>
+        <div class="promo-icon-big" id="promoIcon">🏠</div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-body">
+
+        <!-- Consumer Info -->
+        <div class="info-section animate-in animate-in-3">
+          <div class="info-section-title">📋 Data Pemegang Voucher</div>
+          <div class="info-grid">
+            <div class="info-icon">👤</div>
+            <div class="info-content">
+              <div class="info-lbl">Nama</div>
+              <div class="info-val" id="vNama">—</div>
+            </div>
+            <div class="info-icon">📱</div>
+            <div class="info-content">
+              <div class="info-lbl">WhatsApp</div>
+              <div class="info-val" id="vWA">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Info -->
+        <div class="info-section animate-in animate-in-3">
+          <div class="info-section-title">🏘️ Info Properti</div>
+          <div class="info-grid">
+            <div class="info-icon">🏗️</div>
+            <div class="info-content">
+              <div class="info-lbl">Unit Diminati</div>
+              <div class="info-val" id="vUnit">—</div>
+            </div>
+            <div class="info-icon">📍</div>
+            <div class="info-content">
+              <div class="info-lbl">Lokasi Proyek</div>
+              <div class="info-val" id="vLokasi">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Info -->
+        <div class="info-section animate-in animate-in-3">
+          <div class="info-section-title">🎤 Informasi Sales</div>
+          <div class="info-grid">
+            <div class="info-icon">👩‍💼</div>
+            <div class="info-content">
+              <div class="info-lbl">Marketing / Host Live</div>
+              <div class="info-val" id="vSales">—</div>
+            </div>
+            <div class="info-icon">🏢</div>
+            <div class="info-content">
+              <div class="info-lbl">Nama Proyek</div>
+              <div class="info-val" id="vProyek">—</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- QR & Code Section -->
+      <div class="qr-section animate-in animate-in-4">
+        <div class="qr-title">🔍 Scan atau Gunakan Kode Unik</div>
+
+        <div id="qrSaveArea" style="display:inline-block;background:linear-gradient(160deg,#161616 0%,#1a1208 50%,#161616 100%);border:1px solid rgba(201,168,76,0.4);border-radius:20px;padding:0;text-align:center;overflow:hidden;width:100%;max-width:320px;">
+          <!-- Header Selamat -->
+          <div style="background:linear-gradient(135deg,#C9A84C,#8B6914);padding:18px 20px 14px;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-15px;right:-15px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
+            <div style="position:absolute;bottom:-20px;left:20px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+            <div style="font-size:26px;margin-bottom:4px;">🎉</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#0D0D0D;line-height:1.2;position:relative;z-index:1;">Selamat!</div>
+            <div style="font-size:11px;color:rgba(13,13,13,0.75);margin-top:3px;font-weight:600;letter-spacing:0.5px;position:relative;z-index:1;">Anda Mendapatkan Kode Unik Promo</div>
+          </div>
+          <!-- Nama -->
+          <div style="padding:12px 20px 4px;font-size:10px;color:#8A8070;text-transform:uppercase;letter-spacing:1px;">Diberikan kepada</div>
+          <div id="saveNama" style="padding:0 20px 12px;font-size:16px;font-weight:700;color:#F0D080;"></div>
+          <!-- Divider -->
+          <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);margin:0 20px;"></div>
+          <!-- Kode -->
+          <div style="padding:8px 20px 14px;">
+            <div style="font-size:10px;color:#8A8070;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Kode Voucher</div>
+            <div class="unique-code-box" onclick="copyCode()" title="Klik untuk copy" style="display:inline-flex;">
+              <span class="code-text" id="uniqueCode">—</span>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <!-- Footer -->
+          <div style="background:rgba(0,0,0,0.35);padding:10px 20px;border-top:1px solid rgba(201,168,76,0.15);">
+            <p style="font-size:10px;color:#8A8070;margin:0;letter-spacing:0.3px;">Tunjukkan kode ini kepada marketing saat kunjungan</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Hidden QR generator (tidak ditampilkan) -->
+      <div id="qrCode" style="display:none;"></div>
+
+      <!-- Countdown -->
+      <div class="countdown-section animate-in animate-in-4">
+        <div class="countdown-label">⏳ Voucher Berakhir Dalam</div>
+        <div class="validity-status" id="validityStatus">
+          <div class="status-dot"></div>
+          <span class="status-text">AKTIF & VALID</span>
+        </div>
+        <div class="countdown-blocks" id="countdownBlocks">
+          <div class="countdown-block">
+            <span class="countdown-num" id="cd-days">07</span>
+            <div class="countdown-unit">Hari</div>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-block">
+            <span class="countdown-num" id="cd-hours">00</span>
+            <div class="countdown-unit">Jam</div>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-block">
+            <span class="countdown-num" id="cd-mins">00</span>
+            <div class="countdown-unit">Menit</div>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-block">
+            <span class="countdown-num" id="cd-secs">00</span>
+            <div class="countdown-unit">Detik</div>
+          </div>
+        </div>
+
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px;">
+          Berlaku hingga: <strong id="expireDate" style="color: var(--gold)">—</strong>
+        </p>
+      </div>
+
+      <!-- Terms -->
+      <div class="card-body">
+        <div class="terms-box animate-in animate-in-4">
+          <div class="terms-title">📌 Syarat & Ketentuan</div>
+          <ul class="terms-list">
+            <li>Voucher hanya berlaku untuk pemegang yang namanya tertera di atas</li>
+            <li>Tidak dapat digabung dengan promo lain kecuali ada ketentuan khusus</li>
+            <li>Promo berlaku selama persediaan unit masih ada</li>
+            <li>Hubungi sales yang tertera untuk proses lebih lanjut</li>
+            <li>Masa berlaku <strong style="color: var(--gold)">7 hari</strong> sejak voucher diterbitkan</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="cta-section animate-in animate-in-4">
+        <a id="btnWA" href="#" class="btn-wa" target="_blank">
+          💬 Hubungi Sales via WhatsApp
+        </a>
+        <button class="btn-primary" onclick="shareVoucher()">
+          🔗 Bagikan Voucher
+        </button>
+        <button class="btn-secondary" onclick="backToGenerator()">
+          ← Buat Voucher Baru
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✅ Kode berhasil disalin!</div>
+
+<script>
+// ==================== STATE ====================
+let selectedPromo = { label: 'Elektronik', icon: '⚡', desc: 'Masuk Rumah, Semua Sudah Nyala! ⚡' };
+let voucherData = {};
+let countdownInterval;
+let expiryTimestamp;
+
+const promoDescriptions = {
+  'Elektronik': 'Masuk Rumah, Semua Sudah Nyala! ⚡',
+  'kitchen Set': 'Bonus Kitchen Set Elegan!',
+  'Kitchen Set Full': 'Dapur Sudah Siap Pakai!',
+  'Free BPHTB': 'Bebas biaya BPHTB & pengurusan AJB'
+};
+
+// ==================== PROMO SELECTION ====================
+function selectPromo(el) {
+  document.querySelectorAll('.promo-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPromo = {
+    label: el.dataset.promo,
+    icon: el.dataset.icon,
+    desc: promoDescriptions[el.dataset.promo] || ''
+  };
+}
+
+// ==================== GENERATE UNIQUE CODE ====================
+function generateCode(name, promo) {
+  const prefix = (name.split(' ')[0] || 'VCR').toUpperCase().slice(0, 3);
+  const rand = Math.random().toString(36).toUpperCase().slice(2, 6);
+  const ts = Date.now().toString(36).toUpperCase().slice(-3);
+  return `${prefix}-${rand}${ts}`;
+}
+
+// ==================== GENERATE VOUCHER ====================
+function generateVoucher() {
+  const nama = document.getElementById('inputNama').value.trim();
+  const wa = document.getElementById('inputWA').value.trim();
+  const unit = document.getElementById('inputUnit').value.trim();
+  const lokasi = document.getElementById('inputLokasi').value.trim();
+  const sales = document.getElementById('inputSales').value.trim();
+  const proyek = document.getElementById('inputProyek').value.trim();
+  const customURL = document.getElementById('inputURL').value.trim();
+
+  if (!nama || !unit || !lokasi) {
+    showToast('⚠️ Isi Nama, Unit, dan Lokasi terlebih dahulu!');
+    return;
+  }
+
+  const code = generateCode(nama, selectedPromo.label);
+  expiryTimestamp = Date.now() + (7 * 24 * 60 * 60 * 1000);
+
+  voucherData = {
+    nama, wa, unit, lokasi, sales: sales || 'Tim Marketing',
+    proyek: proyek || 'Proyek Eksklusif',
+    promo: selectedPromo,
+    code,
+    expiry: expiryTimestamp,
+    url: customURL || window.location.href
+  };
+
+  renderVoucher(voucherData);
+  switchScreen('screen-voucher');
+}
+
+// ==================== RENDER VOUCHER ====================
+function renderVoucher(d) {
+  // Hero
+  document.getElementById('heroProyek').textContent = d.proyek.toUpperCase();
+
+  // Promo Banner
+  document.getElementById('promoAmount').textContent = d.promo.label;
+  document.getElementById('promoDesc').textContent = d.promo.desc;
+  document.getElementById('promoIcon').textContent = d.promo.icon;
+
+  // Info
+  document.getElementById('vNama').textContent = d.nama;
+  document.getElementById('vWA').textContent = d.wa || 'Tidak dicantumkan';
+  document.getElementById('vUnit').textContent = d.unit;
+  document.getElementById('vLokasi').textContent = d.lokasi;
+  document.getElementById('vSales').textContent = d.sales;
+  document.getElementById('vProyek').textContent = d.proyek;
+
+  // Unique Code
+  document.getElementById('uniqueCode').textContent = d.code;
+  // Nama di area simpan
+  const saveNamaEl = document.getElementById('saveNama');
+  if (saveNamaEl) saveNamaEl.textContent = d.nama;
+
+  // Expiry Date
+  const exp = new Date(d.expiry);
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  document.getElementById('expireDate').textContent = exp.toLocaleDateString('id-ID', options);
+
+  // WA Button
+  if (d.wa) {
+    const waNum = d.wa.replace(/\D/g, '').replace(/^0/, '62');
+    const msg = encodeURIComponent(
+      `Halo ${d.sales}! 👋\n\nSaya ${d.nama} mau pakai voucher promo:\n` +
+      `🎁 *${d.promo.label}* untuk unit ${d.unit}\n` +
+      `📍 ${d.lokasi}\n\n` +
+      `Kode Voucher: *${d.code}*\n\n` +
+      `Bisa dibantu proses selanjutnya? 🙏`
+    );
+    document.getElementById('btnWA').href = `https://wa.me/${waNum}?text=${msg}`;
+  }
+
+  // QR Code
+  document.getElementById('qrCode').innerHTML = '';
+  const qrURL = d.url + `?code=${d.code}&nama=${encodeURIComponent(d.nama)}`;
+  new QRCode(document.getElementById('qrCode'), {
+    text: qrURL,
+    width: 160,
+    height: 160,
+    colorDark: '#0D0D0D',
+    colorLight: '#FFFFFF',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  // Start Countdown
+  startCountdown(d.expiry);
+}
+
+// ==================== COUNTDOWN ====================
+function startCountdown(expiry) {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  function update() {
+    const now = Date.now();
+    const diff = expiry - now;
+
+    if (diff <= 0) {
+      clearInterval(countdownInterval);
+      document.getElementById('countdownBlocks').innerHTML =
+        '<div class="expired-badge">⛔ VOUCHER SUDAH KADALUARSA</div>';
+      document.getElementById('validityStatus').innerHTML =
+        '<div style="width:8px;height:8px;border-radius:50%;background:#E74C3C;"></div>' +
+        '<span style="font-size:12px;font-weight:600;color:#E74C3C;">KADALUARSA</span>';
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+    document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+    document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+    document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+  }
+
+  update();
+  countdownInterval = setInterval(update, 1000);
+}
+
+// ==================== COPY CODE ====================
+function copyCode() {
+  const code = document.getElementById('uniqueCode').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code);
+  } else {
+    const el = document.createElement('textarea');
+    el.value = code;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  }
+  showToast('✅ Kode ' + code + ' berhasil disalin!');
+}
+
+// ==================== SHARE ====================
+function shareVoucher() {
+  const text = `🏠 *VOUCHER PROMO EKSKLUSIF*\n\n` +
+    `Nama: ${voucherData.nama}\n` +
+    `Promo: ${voucherData.promo.label}\n` +
+    `Unit: ${voucherData.unit}\n` +
+    `Proyek: ${voucherData.proyek}\n` +
+    `Kode: ${voucherData.code}\n\n` +
+    `Berlaku 7 hari. Hubungi marketing sekarang!`;
+
+  if (navigator.share) {
+    navigator.share({ title: 'Voucher Promo Eksklusif', text });
+  } else {
+    if (navigator.clipboard) navigator.clipboard.writeText(text);
+    showToast('📋 Info voucher berhasil disalin!');
+  }
+}
+
+// ==================== DOWNLOAD ====================
+function downloadVoucher() {
+  showToast('📸 Menyimpan voucher...');
+  const target = document.getElementById('qrSaveArea');
+
+  html2canvas(target, {
+    backgroundColor: '#161616',
+    scale: 3,
+    useCORS: true,
+    allowTaint: true,
+    logging: false
+  }).then(canvas => {
+    const link = document.createElement('a');
+    const code = document.getElementById('uniqueCode').textContent || 'voucher';
+    link.download = `voucher-${code}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ Voucher berhasil disimpan!');
+  }).catch(() => {
+    showToast('⚠️ Gagal menyimpan, coba screenshot manual.');
+  });
+}
+
+// ==================== SCREEN SWITCH ====================
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function backToGenerator() {
+  switchScreen('screen-generator');
+  if (countdownInterval) clearInterval(countdownInterval);
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// ==================== URL PARAMS (for QR scan landing) ====================
+(function checkURLParams() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const nama = params.get('nama');
+
+  if (code && nama) {
+    // Auto-show voucher in read-only mode from QR scan
+    // In production, you'd fetch voucher data from server using the code
+    document.getElementById('screen-generator').style.display = 'none';
+    document.getElementById('screen-voucher').classList.add('active');
+
+    document.getElementById('heroProyek').textContent = 'VOUCHER PROMO';
+    document.getElementById('promoAmount').textContent = 'PROMO AKTIF';
+    document.getElementById('promoDesc').textContent = 'Voucher eksklusif dari tim marketing';
+    document.getElementById('promoIcon').textContent = '🎁';
+    document.getElementById('vNama').textContent = decodeURIComponent(nama);
+    document.getElementById('vWA').textContent = '—';
+    document.getElementById('vUnit').textContent = '—';
+    document.getElementById('vLokasi').textContent = '—';
+    document.getElementById('vSales').textContent = '—';
+    document.getElementById('vProyek').textContent = '—';
+    document.getElementById('uniqueCode').textContent = code;
+    document.getElementById('qrCode').innerHTML = '';
+
+    const exp = Date.now() + (7 * 24 * 60 * 60 * 1000);
+    const expDate = new Date(exp);
+    document.getElementById('expireDate').textContent = expDate.toLocaleDateString('id-ID', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    startCountdown(exp);
+  }
+})();
+</script>
+
+</body>
+</html>
